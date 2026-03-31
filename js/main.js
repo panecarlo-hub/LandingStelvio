@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
   // ===== NAVBAR SCROLL =====
   const navbar = document.querySelector('.navbar');
+  let lastScroll = 0;
+
   window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 50);
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
   });
 
   // ===== MOBILE MENU =====
@@ -12,12 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
   menuToggle.addEventListener('click', () => {
     menuToggle.classList.toggle('active');
     navLinks.classList.toggle('active');
+    document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
   });
 
   navLinks.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => {
       menuToggle.classList.remove('active');
       navLinks.classList.remove('active');
+      document.body.style.overflow = '';
     });
   });
 
@@ -31,15 +35,14 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(data => {
       allCars = data;
       renderCars();
-      updateCount();
     });
 
   // ===== COLOR MAP =====
   const colorMap = {
     'Grigio': '#7A7A7A',
-    'Nero': '#1A1A1A',
-    'Rosso': '#C0392B',
-    'Bianco': '#F0F0F0',
+    'Nero': '#222222',
+    'Rosso': '#B5232E',
+    'Bianco': '#E8E8E8',
     'Blu': '#2C3E7B'
   };
 
@@ -72,61 +75,86 @@ document.addEventListener('DOMContentLoaded', () => {
     grid.innerHTML = cars.map(car => {
       const kmFormatted = car.km.toLocaleString('it-IT');
       const prezzoFormatted = car.prezzo.toLocaleString('it-IT');
-      const badgeText = car.km < 10000 ? 'QUASI NUOVA' : car.km < 50000 ? 'POCHI KM' : '';
+      const badgeText = car.km < 10000 ? 'Quasi Nuova' : car.km < 50000 ? 'Pochi Km' : '';
       const colorHex = colorMap[car.colore] || '#888';
 
       return `
-        <div class="car-card" onclick="window.open('${car.link}', '_blank')">
+        <article class="car-card" onclick="window.open('${car.link}', '_blank')">
           <div class="car-card-image">
             ${badgeText ? `<span class="car-card-badge">${badgeText}</span>` : ''}
-            <span class="car-card-color" style="background:${colorHex}"></span>
-            <img src="${car.foto}" alt="Alfa Romeo ${car.modello}" loading="lazy">
+            <span class="car-card-color" style="background:${colorHex}" title="${car.colore}"></span>
+            <img src="${car.foto}" alt="Alfa Romeo ${car.modello} ${car.anno} ${car.colore}" loading="lazy">
           </div>
           <div class="car-card-body">
-            <h3 class="car-card-title">Alfa Romeo ${car.modello}</h3>
-            <div class="car-card-allestimento">${car.allestimento}</div>
+            <div class="car-card-header">
+              <h3 class="car-card-title">${car.modello}</h3>
+              <span class="car-card-allestimento">${car.allestimento}</span>
+            </div>
             <div class="car-card-specs">
               <div class="car-spec">
-                <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
-                ${car.anno}
+                <div class="car-spec-icon">
+                  <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/></svg>
+                </div>
+                <span>${car.anno}</span>
               </div>
               <div class="car-spec">
-                <svg viewBox="0 0 24 24"><path d="M17.5 10c.3 0 .5.2.5.5v1c0 .3-.2.5-.5.5h-11c-.3 0-.5-.2-.5-.5v-1c0-.3.2-.5.5-.5h11zm-8.5 4h2v3H9v-3zm4 0h2v3h-2v-3zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/></svg>
-                ${kmFormatted} km
+                <div class="car-spec-icon">
+                  <svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+                </div>
+                <span>${kmFormatted} km</span>
               </div>
               <div class="car-spec">
-                <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm10 0c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm-7-12l1.5 4.5h5L18 6H10zm8.3 0l-1.6 5H9.4L7 6H4v2h2l3.6 7.6L8.2 18H19v-2h-8.3l1-2h5.8l2-6H18.3z"/></svg>
-                ${car.cv} CV ${car.trazione}
+                <div class="car-spec-icon">
+                  <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm10 0c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM5.5 8.5l1.5-3h10l1.5 3H5.5zM18 4H6L3 10v9c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-9l-3-6z"/></svg>
+                </div>
+                <span>${car.cv} CV &middot; ${car.trazione}</span>
               </div>
               <div class="car-spec">
-                <svg viewBox="0 0 24 24"><path d="M19.77 7.23l.01-.01-3.72-3.72L15 4.56l2.11 2.11c-.94.36-1.61 1.26-1.61 2.33 0 1.38 1.12 2.5 2.5 2.5.36 0 .69-.08 1-.21v7.21c0 .55-.45 1-1 1s-1-.45-1-1V14c0-1.1-.9-2-2-2h-1V5c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2v16h10v-7.5h1.5v5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V9c0-.69-.28-1.32-.73-1.77zM12 10H6V5h6v5z"/></svg>
-                ${car.carburante}
+                <div class="car-spec-icon">
+                  <svg viewBox="0 0 24 24"><path d="M19.77 7.23l.01-.01-3.72-3.72L15 4.56l2.11 2.11c-.94.36-1.61 1.26-1.61 2.33 0 1.38 1.12 2.5 2.5 2.5.36 0 .69-.08 1-.21v7.21c0 .55-.45 1-1 1s-1-.45-1-1V14c0-1.1-.9-2-2-2h-1V5c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2v16h10v-7.5h1.5v5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V9c0-.69-.28-1.32-.73-1.77zM12 10H6V5h6v5z"/></svg>
+                </div>
+                <span>${car.carburante}</span>
               </div>
             </div>
             <div class="car-card-footer">
               <div class="car-price">
-                &euro;${prezzoFormatted}
-                <span class="car-price-iva">IVA inclusa</span>
+                <span class="car-price-amount">&euro;${prezzoFormatted}</span>
+                <span class="car-price-label">IVA inclusa</span>
               </div>
-              <span class="car-card-link">
+              <span class="car-card-cta">
                 Dettagli
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
               </span>
             </div>
           </div>
-        </div>
+        </article>
       `;
     }).join('');
 
     updateCount(cars.length);
+    animateCards();
   }
 
   function updateCount(count) {
     const el = document.getElementById('resultsCount');
     if (el) {
-      const num = count !== undefined ? count : allCars.length;
-      el.textContent = `${num} Stelvio disponibil${num === 1 ? 'e' : 'i'}`;
+      el.textContent = `${count} Stelvio disponibil${count === 1 ? 'e' : 'i'}`;
     }
+  }
+
+  function animateCards() {
+    const cards = document.querySelectorAll('.car-card');
+    cards.forEach((card, i) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(30px)';
+      card.style.transition = `opacity 0.5s ease ${i * 0.08}s, transform 0.5s ease ${i * 0.08}s`;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        });
+      });
+    });
   }
 
   // ===== FILTERS =====
@@ -156,19 +184,14 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1 });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-  document.querySelectorAll('.feature-card, .car-card, .contatti-item').forEach(el => {
+  document.querySelectorAll('.feature-card, .contatti-item, .review-highlight, .stat-item').forEach(el => {
     el.style.opacity = '0';
     el.style.transform = 'translateY(30px)';
     el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     observer.observe(el);
   });
-
-  // Animation class
-  const style = document.createElement('style');
-  style.textContent = '.animate-in { opacity: 1 !important; transform: translateY(0) !important; }';
-  document.head.appendChild(style);
 
   // ===== STAT COUNTER ANIMATION =====
   const statObserver = new IntersectionObserver((entries) => {
@@ -178,13 +201,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = el.dataset.target;
         const isDecimal = target.includes('.');
         const targetNum = parseFloat(target);
-        const duration = 2000;
+        const duration = 2200;
         const start = performance.now();
 
         function update(now) {
           const elapsed = now - start;
           const progress = Math.min(elapsed / duration, 1);
-          const eased = 1 - Math.pow(1 - progress, 3);
+          const eased = 1 - Math.pow(1 - progress, 4);
           const current = eased * targetNum;
 
           if (isDecimal) {
@@ -208,5 +231,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.stat-number').forEach(el => {
     statObserver.observe(el);
+  });
+
+  // ===== SMOOTH REVEAL ON LOAD =====
+  document.body.style.opacity = '0';
+  document.body.style.transition = 'opacity 0.6s ease';
+  requestAnimationFrame(() => {
+    document.body.style.opacity = '1';
   });
 });
