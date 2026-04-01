@@ -46,17 +46,15 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', resize);
 
     class Particle {
-      constructor() {
-        this.reset();
-      }
+      constructor() { this.reset(); }
       reset() {
         this.x = Math.random() * w;
         this.y = Math.random() * h;
         this.size = Math.random() * 2 + 0.5;
-        this.speedX = (Math.random() - 0.5) * 0.3;
-        this.speedY = (Math.random() - 0.5) * 0.3;
-        this.opacity = Math.random() * 0.4 + 0.1;
-        this.gold = Math.random() > 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.speedY = (Math.random() - 0.5) * 0.4;
+        this.opacity = Math.random() * 0.5 + 0.1;
+        this.isRed = Math.random() > 0.7;
       }
       update() {
         this.x += this.speedX;
@@ -66,30 +64,29 @@ document.addEventListener('DOMContentLoaded', () => {
       draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = this.gold
-          ? `rgba(184, 146, 74, ${this.opacity})`
-          : `rgba(160, 140, 120, ${this.opacity * 0.5})`;
+        ctx.fillStyle = this.isRed
+          ? `rgba(181, 21, 43, ${this.opacity})`
+          : `rgba(200, 202, 204, ${this.opacity * 0.6})`;
         ctx.fill();
       }
     }
 
-    for (let i = 0; i < 60; i++) particles.push(new Particle());
+    for (let i = 0; i < 50; i++) particles.push(new Particle());
 
     function animateParticles() {
       ctx.clearRect(0, 0, w, h);
       particles.forEach(p => { p.update(); p.draw(); });
 
-      // Draw connections
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
+          if (dist < 130) {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(184, 146, 74, ${0.06 * (1 - dist / 120)})`;
+            ctx.strokeStyle = `rgba(200, 202, 204, ${0.08 * (1 - dist / 130)})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -147,7 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== LOAD CARS & CAROUSEL =====
   let allCars = [];
   let filteredCars = [];
-  let currentFilter = 'tutti';
   let currentSlide = 0;
 
   const colorMap = {
@@ -171,7 +167,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const dotsContainer = document.getElementById('carouselDots');
     if (!track) return;
 
-    // Build slides
+    currentSlide = 0;
+
     track.innerHTML = filteredCars.map((car, i) => {
       const kmFormatted = car.km.toLocaleString('it-IT');
       const prezzoFormatted = car.prezzo.toLocaleString('it-IT');
@@ -181,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const waLink = `https://wa.me/393284120553?text=${waMsg}`;
 
       return `
-        <div class="carousel-slide ${i === 0 ? 'active' : ''}" data-index="${i}">
+        <div class="carousel-slide" data-index="${i}">
           <article class="car-card" data-wa="${waLink}">
             <div class="car-card-glow"></div>
             <div class="car-card-image">
@@ -239,37 +236,44 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    updateCounter();
-    updateSlideClasses();
+    positionSlides();
     initCardInteractions();
     initSwipe();
   }
 
-  function goToSlide(index) {
-    if (index < 0) index = filteredCars.length - 1;
-    if (index >= filteredCars.length) index = 0;
-    currentSlide = index;
-
+  function positionSlides() {
     const track = document.getElementById('carouselTrack');
-    const slideWidth = track.querySelector('.carousel-slide').offsetWidth;
-    const containerWidth = track.parentElement.offsetWidth;
-    const offset = (containerWidth / 2) - (slideWidth / 2) - (currentSlide * slideWidth);
+    if (!track || filteredCars.length === 0) return;
+
+    const slides = track.querySelectorAll('.carousel-slide');
+    if (slides.length === 0) return;
+
+    const slideEl = slides[0];
+    const slideWidth = slideEl.offsetWidth;
+    const viewport = track.parentElement.offsetWidth;
+    const offset = (viewport / 2) - (slideWidth / 2) - (currentSlide * slideWidth);
+
     track.style.transform = `translateX(${offset}px)`;
 
-    updateSlideClasses();
+    slides.forEach((slide, i) => {
+      slide.classList.remove('active', 'prev', 'next', 'far');
+      const diff = i - currentSlide;
+      if (diff === 0) slide.classList.add('active');
+      else if (diff === -1) slide.classList.add('prev');
+      else if (diff === 1) slide.classList.add('next');
+      else slide.classList.add('far');
+    });
+
     updateCounter();
     updateDots();
   }
 
-  function updateSlideClasses() {
-    document.querySelectorAll('.carousel-slide').forEach((slide, i) => {
-      slide.classList.remove('active', 'prev', 'next', 'far');
-      const diff = i - currentSlide;
-      if (diff === 0) slide.classList.add('active');
-      else if (diff === -1 || (currentSlide === 0 && i === filteredCars.length - 1)) slide.classList.add('prev');
-      else if (diff === 1 || (currentSlide === filteredCars.length - 1 && i === 0)) slide.classList.add('next');
-      else slide.classList.add('far');
-    });
+  function goToSlide(index) {
+    if (filteredCars.length === 0) return;
+    if (index < 0) index = filteredCars.length - 1;
+    if (index >= filteredCars.length) index = 0;
+    currentSlide = index;
+    positionSlides();
   }
 
   function updateCounter() {
@@ -295,32 +299,75 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== SWIPE SUPPORT =====
   function initSwipe() {
-    const track = document.getElementById('carouselTrack');
-    if (!track) return;
-    let startX = 0, isDragging = false;
+    const viewport = document.querySelector('.carousel-viewport');
+    if (!viewport) return;
 
-    track.addEventListener('touchstart', (e) => {
+    let startX = 0;
+    let isDragging = false;
+
+    viewport.addEventListener('touchstart', (e) => {
       startX = e.touches[0].clientX;
       isDragging = true;
     }, { passive: true });
 
-    track.addEventListener('touchend', (e) => {
+    viewport.addEventListener('touchmove', (e) => {
+      // Prevent horizontal page scroll while swiping carousel
+      if (isDragging) {
+        const diffX = Math.abs(e.touches[0].clientX - startX);
+        const diffY = Math.abs(e.touches[0].clientY - startX);
+        if (diffX > 10) {
+          e.preventDefault();
+        }
+      }
+    }, { passive: false });
+
+    viewport.addEventListener('touchend', (e) => {
       if (!isDragging) return;
       isDragging = false;
       const diff = startX - e.changedTouches[0].clientX;
-      if (Math.abs(diff) > 50) {
+      if (Math.abs(diff) > 40) {
         if (diff > 0) goToSlide(currentSlide + 1);
         else goToSlide(currentSlide - 1);
       }
     }, { passive: true });
+
+    // Mouse drag for desktop
+    let mouseDown = false;
+    let mouseStartX = 0;
+
+    viewport.addEventListener('mousedown', (e) => {
+      mouseDown = true;
+      mouseStartX = e.clientX;
+      viewport.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!mouseDown) return;
+    });
+
+    document.addEventListener('mouseup', (e) => {
+      if (!mouseDown) return;
+      mouseDown = false;
+      viewport.style.cursor = '';
+      const diff = mouseStartX - e.clientX;
+      if (Math.abs(diff) > 40) {
+        if (diff > 0) goToSlide(currentSlide + 1);
+        else goToSlide(currentSlide - 1);
+      }
+    });
   }
 
   // ===== CARD INTERACTIONS =====
   function initCardInteractions() {
-    // Card click → WhatsApp
     document.querySelectorAll('.car-card').forEach(card => {
       card.addEventListener('click', (e) => {
-        // Ripple effect
+        const slide = card.closest('.carousel-slide');
+        if (slide && !slide.classList.contains('active')) {
+          goToSlide(parseInt(slide.dataset.index));
+          return;
+        }
+
         const cta = card.querySelector('.car-card-cta');
         if (cta) {
           const ripple = document.createElement('span');
@@ -356,14 +403,16 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      currentFilter = btn.dataset.filter;
+      const filter = btn.dataset.filter;
+
+      if (filter === 'tutti') {
+        filteredCars = [...allCars];
+      } else {
+        filteredCars = allCars.filter(car => car.allestimento.toLowerCase() === filter);
+      }
+
       currentSlide = 0;
-
-      if (currentFilter === 'tutti') filteredCars = [...allCars];
-      else filteredCars = allCars.filter(car => car.allestimento.toLowerCase() === currentFilter);
-
       buildCarousel();
-      goToSlide(0);
     });
   });
 
@@ -411,17 +460,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== PARALLAX HERO =====
   window.addEventListener('scroll', () => {
     const scrolled = window.scrollY;
-    const heroImg = document.querySelector('.hero-car-wrapper');
     const heroContent = document.querySelector('.hero-content');
-    if (heroImg && scrolled < window.innerHeight) {
-      heroImg.style.transform = `translateY(${scrolled * 0.15}px)`;
+    if (heroContent && scrolled < window.innerHeight) {
       heroContent.style.transform = `translateY(${scrolled * 0.08}px)`;
       heroContent.style.opacity = 1 - (scrolled / (window.innerHeight * 0.8));
     }
   });
 
-  // ===== INITIAL CAROUSEL POSITION =====
-  setTimeout(() => goToSlide(0), 100);
+  // ===== INITIAL POSITION =====
+  setTimeout(() => goToSlide(0), 150);
 
   // ===== SMOOTH PAGE REVEAL =====
   document.body.style.opacity = '0';
