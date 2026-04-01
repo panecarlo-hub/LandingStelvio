@@ -249,6 +249,50 @@ body {
 }
 .hero-cta:hover { background: var(--red-dark); transform: translateY(-1px); }
 
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.hero-tag {
+  font-family: var(--font-c);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  border-radius: 20px;
+  animation: fadeInTag 0.5s ease forwards;
+  opacity: 0;
+}
+.hero-tag:nth-child(1) { animation-delay: 0.1s; }
+.hero-tag:nth-child(2) { animation-delay: 0.25s; }
+.hero-tag:nth-child(3) { animation-delay: 0.4s; }
+.hero-tag:nth-child(4) { animation-delay: 0.55s; color: var(--red); border-color: rgba(200,16,46,0.3); }
+@keyframes fadeInTag {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.hero-rimborso {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+.hero-rimborso svg { color: #25D366; flex-shrink: 0; }
+
 .hero-car {
   position: relative;
   display: flex;
@@ -685,6 +729,21 @@ body {
 .perche-icon { color: var(--red); margin-bottom: 16px; }
 .perche-card h3 { font-family: var(--font-c); font-size: 17px; font-weight: 700; margin-bottom: 10px; }
 .perche-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+.perche-card--highlight {
+  border-color: rgba(200,16,46,0.35);
+  background: linear-gradient(135deg, var(--bg3) 0%, rgba(200,16,46,0.06) 100%);
+  position: relative;
+  overflow: hidden;
+}
+.perche-card--highlight::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--red), transparent);
+}
+.perche-card--highlight h3 { color: var(--text); }
+.perche-card--highlight .perche-icon { color: var(--red); }
 
 /* ============================================================
    CONTATTI
