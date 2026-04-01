@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const waLink = `https://wa.me/393284120553?text=${waMsg}`;
 
       return `
-        <article class="car-card" onclick="window.open('${waLink}', '_blank')">`
+        <article class="car-card" onclick="window.open('${waLink}', '_blank')">
           <div class="car-card-image">
             ${badgeText ? `<span class="car-card-badge">${badgeText}</span>` : ''}
             <span class="car-card-color" style="background:${colorHex}" title="${car.colore}"></span>
