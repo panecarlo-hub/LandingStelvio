@@ -212,9 +212,66 @@ function updateMatchCount(count) {
     n === 1 ? '1 vettura' : `${n} vetture`;
 }
 
+// ── TAN per durata ──
+const TAN = { 24: 6.9, 36: 7.9, 48: 8.9, 60: 9.9 };
+
+function calcolaRataMensile(prezzo, anticipoPerc, mesi) {
+  const anticipo = Math.round(prezzo * (anticipoPerc / 100));
+  const P = prezzo - anticipo;
+  if (P <= 0) return { rata: 0, finanziato: 0, interessi: 0, totale: 0, anticipo };
+  const tanAnnuo = (TAN[mesi] || 7.9) / 100;
+  const r = tanAnnuo / 12;
+  const rata = P * (r * Math.pow(1 + r, mesi)) / (Math.pow(1 + r, mesi) - 1);
+  const totale = rata * mesi;
+  const interessi = totale - P;
+  return {
+    rata:       Math.round(rata),
+    finanziato: P,
+    interessi:  Math.round(interessi),
+    totale:     Math.round(totale),
+    anticipo
+  };
+}
+
+function toggleSimulatore(id) {
+  const sim = document.getElementById('sim-' + id);
+  const btn = document.getElementById('ratabtn-' + id);
+  const isOpen = sim.style.display !== 'none';
+  sim.style.display = isOpen ? 'none' : 'block';
+  btn.textContent = isOpen ? 'Calcola rata' : 'Chiudi';
+  if (!isOpen) aggiornaSimulatore(id);
+}
+
+function aggiornaSimulatore(id) {
+  const sim  = document.getElementById('sim-' + id);
+  const prezzo      = parseInt(sim.dataset.prezzo);
+  const anticipoPerc = parseInt(sim.querySelector('.sim-anticipo').value);
+  const mesi        = parseInt(sim.querySelector('.sim-btn.active').dataset.mesi);
+  const modello     = sim.dataset.modello;
+
+  const { rata, finanziato, interessi, totale, anticipo } = calcolaRataMensile(prezzo, anticipoPerc, mesi);
+
+  sim.querySelector('.sim-anticipo-val').textContent = '€ ' + anticipo.toLocaleString('it-IT');
+  sim.querySelector('.sim-rata-val').textContent     = '€ ' + rata.toLocaleString('it-IT') + '/mese';
+  sim.querySelector('.sim-fin-val').textContent      = '€ ' + finanziato.toLocaleString('it-IT');
+  sim.querySelector('.sim-int-val').textContent      = '€ ' + interessi.toLocaleString('it-IT');
+  sim.querySelector('.sim-tot-val').textContent      = '€ ' + totale.toLocaleString('it-IT');
+
+  const waMsg = encodeURIComponent(
+    `Ciao! Sono interessato a un finanziamento per la ${modello}. Simulazione: anticipo € ${anticipo.toLocaleString('it-IT')}, ${mesi} mesi, rata indicativa € ${rata.toLocaleString('it-IT')}/mese. Potete confermarmi la fattibilità?`
+  );
+  sim.querySelector('.sim-wa-btn').href = `https://wa.me/393284120553?text=${waMsg}`;
+}
+
+function setDurata(btn, id) {
+  btn.closest('.sim-durate').querySelectorAll('.sim-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  aggiornaSimulatore(id);
+}
+
 // ── RENDER CARDS ──
 function renderCards(cars) {
-  const grid = document.getElementById('cardsGrid');
+  const grid  = document.getElementById('cardsGrid');
   const noRes = document.getElementById('noResults');
 
   if (cars.length === 0) {
@@ -225,55 +282,79 @@ function renderCards(cars) {
   noRes.style.display = 'none';
 
   grid.innerHTML = cars.map(car => {
+    const id = car.id;
     const waMsg = encodeURIComponent(
       `Ciao! Sono interessato alla Stelvio ${car.modello} (${car.anno}) - ${car.colore} - ${car.km.toLocaleString('it-IT')} km - Targa: ${car.targa}. Posso avere più informazioni?`
     );
-    const waUrl = `https://wa.me/393284120553?text=${waMsg}`;
-
-    // Usa la foto SenzaSfondo se disponibile, altrimenti autoscout
+    const waUrl  = `https://wa.me/393284120553?text=${waMsg}`;
     const imgSrc = car.foto || car.foto_autoscout;
 
     return `
     <div class="car-card">
       <div class="card-img-wrap">
-        <img
-          src="${imgSrc}"
-          alt="${car.modello}"
-          onerror="this.src='${car.foto_autoscout}'"
-          loading="lazy"
-        >
+        <img src="${imgSrc}" alt="${car.modello}" onerror="this.src='${car.foto_autoscout}'" loading="lazy">
         <span class="card-badge">${car.allestimento}</span>
       </div>
       <div class="card-body">
         <div class="card-title">${car.modello}</div>
         <div class="card-specs">
-          <div class="card-spec">
-            <span class="spec-label">Anno</span>
-            <span class="spec-value">${car.anno}</span>
-          </div>
-          <div class="card-spec">
-            <span class="spec-label">Km</span>
-            <span class="spec-value">${car.km.toLocaleString('it-IT')} km</span>
-          </div>
-          <div class="card-spec">
-            <span class="spec-label">Colore</span>
-            <span class="spec-value">${car.colore}</span>
-          </div>
-          <div class="card-spec">
-            <span class="spec-label">Trazione</span>
-            <span class="spec-value">${car.trazione}</span>
-          </div>
+          <div class="card-spec"><span class="spec-label">Anno</span><span class="spec-value">${car.anno}</span></div>
+          <div class="card-spec"><span class="spec-label">Km</span><span class="spec-value">${car.km.toLocaleString('it-IT')} km</span></div>
+          <div class="card-spec"><span class="spec-label">Colore</span><span class="spec-value">${car.colore}</span></div>
+          <div class="card-spec"><span class="spec-label">Trazione</span><span class="spec-value">${car.trazione}</span></div>
         </div>
         <div class="card-footer">
-          <div class="card-price">
-            € ${car.prezzo.toLocaleString('it-IT')} <span>IVA incl.</span>
+          <div class="card-price">€ ${car.prezzo.toLocaleString('it-IT')} <span>IVA incl.*</span></div>
+          <div class="card-actions">
+            <button id="ratabtn-${id}" class="card-rata-btn" onclick="toggleSimulatore(${id})">Calcola rata</button>
+            <a href="${waUrl}" target="_blank" class="card-wa-btn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Chiedi info
+            </a>
           </div>
-          <a href="${waUrl}" target="_blank" class="card-wa-btn">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            Chiedi info
-          </a>
+        </div>
+        <!-- SIMULATORE RATA -->
+        <div class="simulatore" id="sim-${id}" style="display:none"
+             data-prezzo="${car.prezzo}" data-modello="${car.modello} (${car.anno}) targa ${car.targa}">
+          <div class="sim-row">
+            <div class="sim-row-label">
+              <span>Anticipo</span>
+              <span class="sim-anticipo-val">€ 0</span>
+            </div>
+            <input type="range" class="sim-anticipo" min="0" max="30" step="5" value="0"
+                   oninput="aggiornaSimulatore(${id})">
+            <div class="sim-perc-labels"><span>0%</span><span>15%</span><span>30%</span></div>
+          </div>
+          <div class="sim-row">
+            <span class="sim-row-label-single">Durata</span>
+            <div class="sim-durate">
+              <button class="sim-btn" data-mesi="24" onclick="setDurata(this,${id})">24 mesi</button>
+              <button class="sim-btn active" data-mesi="36" onclick="setDurata(this,${id})">36 mesi</button>
+              <button class="sim-btn" data-mesi="48" onclick="setDurata(this,${id})">48 mesi</button>
+              <button class="sim-btn" data-mesi="60" onclick="setDurata(this,${id})">60 mesi</button>
+            </div>
+          </div>
+          <div class="sim-result">
+            <div class="sim-rata-box">
+              <span class="sim-rata-label">Rata mensile indicativa</span>
+              <span class="sim-rata-val">€ ---</span>
+            </div>
+            <div class="sim-details">
+              <div class="sim-detail"><span>Finanziato</span><b class="sim-fin-val">---</b></div>
+              <div class="sim-detail"><span>Interessi</span><b class="sim-int-val">---</b></div>
+              <div class="sim-detail"><span>Totale</span><b class="sim-tot-val">---</b></div>
+            </div>
+            <a href="#" target="_blank" class="sim-wa-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Chiedi finanziamento su WhatsApp
+            </a>
+            <p class="sim-disclaimer">* I prezzi sono puramente indicativi e potrebbero subire variazioni. Calcolo esemplificativo basato su TAN fisso (${TAN[36]}% per 36 mesi, variabile per durata). Offerta soggetta ad approvazione creditizia. TAEG non incluso.</p>
+          </div>
         </div>
       </div>
     </div>`;
   }).join('');
+
+  // Inizializza ogni simulatore al caricamento
+  cars.forEach(car => aggiornaSimulatore(car.id));
 }
