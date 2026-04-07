@@ -5,14 +5,15 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --red:      #6b4f3a;
-  --red-dark: #4e3828;
-  --bg:       #f2f0ed;
-  --bg2:      #e8e5e1;
-  --bg3:      #dedad5;
-  --border:   rgba(44,44,42,0.12);
-  --text:     #2c2c2a;
-  --muted:    #888780;
+  --red:      #c41230;
+  --red-dark: #9a0e25;
+  --bg:       #ffffff;
+  --bg2:      #f5f5f5;
+  --bg3:      #ebebeb;
+  --border:   rgba(0,0,0,0.10);
+  --text:     #111111;
+  --muted:    #777777;
+  --heading:  #000000;
   --font:     'Barlow', sans-serif;
   --font-c:   'Barlow Condensed', sans-serif;
 }
@@ -37,7 +38,7 @@ body {
   font-weight: 600;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: #b08d6a;
+  color: #c41230;
   margin-bottom: 12px;
 }
 .section-title {
@@ -187,7 +188,7 @@ body {
   font-weight: 600;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: #b08d6a;
+  color: #c41230;
   margin-bottom: 20px;
 }
 .hero-title {
@@ -271,7 +272,7 @@ body {
 .hero-tag:nth-child(1) { animation-delay: 0.1s; }
 .hero-tag:nth-child(2) { animation-delay: 0.25s; }
 .hero-tag:nth-child(3) { animation-delay: 0.4s; }
-.hero-tag:nth-child(4) { animation-delay: 0.55s; color: var(--red); border-color: rgba(107,79,58,0.3); }
+.hero-tag:nth-child(4) { animation-delay: 0.55s; color: var(--red); border-color: rgba(196,18,48,0.3); }
 @keyframes fadeInTag {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -303,7 +304,7 @@ body {
   position: absolute;
   width: 70%;
   height: 50%;
-  background: radial-gradient(ellipse, rgba(107,79,58,0.12) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(196,18,48,0.12) 0%, transparent 70%);
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
@@ -314,7 +315,7 @@ body {
   max-width: 620px;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 20px 40px rgba(44,44,42,0.2));
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2));
   animation: floatCar 4s ease-in-out infinite;
   transition: opacity 0.4s;
 }
@@ -385,7 +386,7 @@ body {
   transform: translateX(-50%);
   width: 70%;
   height: 30px;
-  background: radial-gradient(ellipse, rgba(44,44,42,0.2) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(0,0,0,0.2) 0%, transparent 70%);
   filter: blur(10px);
 }
 .config-car-img {
@@ -393,7 +394,7 @@ body {
   max-width: 500px;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 16px 32px rgba(44,44,42,0.18));
+  filter: drop-shadow(0 16px 32px rgba(0,0,0,0.18));
   transition: opacity 0.35s ease, transform 0.35s ease;
 }
 .config-car-img.changing {
@@ -466,7 +467,7 @@ body {
   justify-content: center;
   border: 2px solid transparent;
   transition: border-color 0.2s, transform 0.2s;
-  box-shadow: 0 2px 8px rgba(44,44,42,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 .swatch-all {
   background: conic-gradient(#C8102E 0deg 72deg, #1B3A6B 72deg 144deg, #1a1a1a 144deg 216deg, #7a7d82 216deg 288deg, #f0f0f0 288deg 360deg);
@@ -492,7 +493,7 @@ body {
   cursor: pointer;
   transition: all 0.2s;
 }
-.filter-btn:hover { border-color: rgba(107,79,58,0.4); color: var(--text); }
+.filter-btn:hover { border-color: rgba(196,18,48,0.4); color: var(--text); }
 .filter-btn.active { background: var(--red); border-color: var(--red); color: #fff; font-weight: 600; }
 
 /* Range slider */
@@ -534,7 +535,7 @@ body {
   border: 3px solid var(--red);
   cursor: pointer;
   pointer-events: all;
-  box-shadow: 0 2px 8px rgba(44,44,42,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   transition: transform 0.15s;
 }
 .range-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
@@ -546,7 +547,7 @@ body {
   border: 3px solid var(--red);
   cursor: pointer;
   pointer-events: all;
-  box-shadow: 0 2px 8px rgba(44,44,42,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 /* Reset button */
@@ -600,8 +601,8 @@ body {
 }
 .car-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(107,79,58,0.35);
-  box-shadow: 0 8px 24px rgba(44,44,42,0.12);
+  border-color: rgba(196,18,48,0.35);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
 .card-img-wrap {
   position: relative;
@@ -776,13 +777,13 @@ body {
   padding: 28px;
   transition: border-color 0.25s;
 }
-.perche-card:hover { border-color: rgba(107,79,58,0.35); }
+.perche-card:hover { border-color: rgba(196,18,48,0.35); }
 .perche-icon { color: var(--red); margin-bottom: 16px; }
 .perche-card h3 { font-family: var(--font-c); font-size: 17px; font-weight: 700; margin-bottom: 10px; }
 .perche-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
 .perche-card--highlight {
-  border-color: rgba(107,79,58,0.35);
-  background: linear-gradient(135deg, var(--bg3) 0%, rgba(107,79,58,0.06) 100%);
+  border-color: rgba(196,18,48,0.35);
+  background: linear-gradient(135deg, var(--bg3) 0%, rgba(196,18,48,0.06) 100%);
   position: relative;
   overflow: hidden;
 }
@@ -854,7 +855,7 @@ body {
   transition: all 0.2s;
   white-space: nowrap;
 }
-.social-link:hover { color: var(--text); border-color: rgba(107,79,58,0.4); }
+.social-link:hover { color: var(--text); border-color: rgba(196,18,48,0.4); }
 
 /* ============================================================
    FOOTER
@@ -922,8 +923,8 @@ body {
   color: var(--text);
   transition: border-color 0.2s, background 0.2s;
 }
-.recensioni-badge:hover { border-color: #b08d6a; background: var(--bg); }
-.badge-stelle { color: #b08d6a; font-size: 15px; letter-spacing: 1px; }
+.recensioni-badge:hover { border-color: #c41230; background: var(--bg); }
+.badge-stelle { color: #c41230; font-size: 15px; letter-spacing: 1px; }
 .badge-score { font-weight: 700; color: var(--heading); }
 .badge-sep { color: var(--text-muted); }
 .badge-count { color: var(--text); }
@@ -945,8 +946,8 @@ body {
   gap: 16px;
   transition: border-color 0.25s;
 }
-.recensione-card:hover { border-color: rgba(107,79,58,0.35); }
-.stelle { color: #b08d6a; font-size: 18px; letter-spacing: 2px; }
+.recensione-card:hover { border-color: rgba(196,18,48,0.35); }
+.stelle { color: #c41230; font-size: 18px; letter-spacing: 2px; }
 .recensione-testo {
   font-size: 15px;
   line-height: 1.7;
@@ -1090,7 +1091,7 @@ body {
   background: #fff;
   border: 3px solid var(--red);
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(44,44,42,0.2);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 .sim-perc-labels {
   display: flex;
