@@ -366,6 +366,8 @@ function renderCards(cars) {
 
   // Inizializza ogni simulatore al caricamento
   cars.forEach(car => aggiornaSimulatore(car.id));
+  // Inizializza swipe touch gallery
+  initGalleryTouch();
 }
 
 // ── GALLERY ──
@@ -382,4 +384,50 @@ function galleryNav(e, id, dir) {
   galleryState[id] = (galleryState[id] + dir + total) % total;
   track.style.transform = `translateX(-${galleryState[id] * 100}%)`;
   dotsEl.querySelectorAll('.gdot').forEach((d, i) => d.classList.toggle('active', i === galleryState[id]));
+}
+
+function galleryGoTo(id, dir) {
+  const track = document.getElementById('gallery-track-' + id);
+  const dotsEl = document.getElementById('gallery-dots-' + id);
+  if (!track) return;
+  const total = track.querySelectorAll('img').length;
+  if (!galleryState[id]) galleryState[id] = 0;
+  galleryState[id] = (galleryState[id] + dir + total) % total;
+  track.style.transform = `translateX(-${galleryState[id] * 100}%)`;
+  dotsEl.querySelectorAll('.gdot').forEach((d, i) => d.classList.toggle('active', i === galleryState[id]));
+}
+
+function initGalleryTouch() {
+  document.querySelectorAll('.card-gallery').forEach(gallery => {
+    const idAttr = gallery.id.replace('gallery-', '');
+    let startX = 0, startY = 0, isDragging = false, lockAxis = null;
+
+    gallery.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      isDragging = true;
+      lockAxis = null;
+    }, { passive: true });
+
+    gallery.addEventListener('touchmove', e => {
+      if (!isDragging) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      if (!lockAxis) {
+        lockAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      }
+      if (lockAxis === 'x') {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    gallery.addEventListener('touchend', e => {
+      if (!isDragging || lockAxis !== 'x') { isDragging = false; return; }
+      const dx = e.changedTouches[0].clientX - startX;
+      isDragging = false;
+      if (Math.abs(dx) > 40) {
+        galleryGoTo(idAttr, dx < 0 ? 1 : -1);
+      }
+    });
+  });
 }
