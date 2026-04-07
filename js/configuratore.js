@@ -294,7 +294,7 @@ function renderCards(cars) {
       <div class="card-img-wrap">
         <div class="card-gallery" id="gallery-${id}">
           <div class="card-gallery-track" id="gallery-track-${id}">
-            ${gallery.map((src, gi) => `<img src="${src}" alt="${car.modello}" loading="${gi === 0 ? 'eager' : 'lazy'}">`).join('')}
+            ${gallery.map((src, gi) => `<img src="${src}" alt="${car.modello}" loading="${gi === 0 ? 'eager' : 'lazy'}" class="${gi === 0 ? 'active' : ''}">`).join('')}
           </div>
           <button class="gallery-btn gallery-prev" onclick="galleryNav(event,${id},-1)">&#8249;</button>
           <button class="gallery-btn gallery-next" onclick="galleryNav(event,${id},1)">&#8250;</button>
@@ -376,24 +376,19 @@ const galleryState = {};
 function galleryNav(e, id, dir) {
   e.preventDefault();
   e.stopPropagation();
-  const track = document.getElementById('gallery-track-' + id);
-  const dotsEl = document.getElementById('gallery-dots-' + id);
-  if (!track) return;
-  const total = track.querySelectorAll('img').length;
-  if (!galleryState[id]) galleryState[id] = 0;
-  galleryState[id] = (galleryState[id] + dir + total) % total;
-  track.style.transform = `translateX(-${galleryState[id] * 100}%)`;
-  dotsEl.querySelectorAll('.gdot').forEach((d, i) => d.classList.toggle('active', i === galleryState[id]));
+  galleryGoTo(id, dir);
 }
 
 function galleryGoTo(id, dir) {
   const track = document.getElementById('gallery-track-' + id);
   const dotsEl = document.getElementById('gallery-dots-' + id);
   if (!track) return;
-  const total = track.querySelectorAll('img').length;
+  const imgs = track.querySelectorAll('img');
+  const total = imgs.length;
   if (!galleryState[id]) galleryState[id] = 0;
+  imgs[galleryState[id]].classList.remove('active');
   galleryState[id] = (galleryState[id] + dir + total) % total;
-  track.style.transform = `translateX(-${galleryState[id] * 100}%)`;
+  imgs[galleryState[id]].classList.add('active');
   dotsEl.querySelectorAll('.gdot').forEach((d, i) => d.classList.toggle('active', i === galleryState[id]));
 }
 
