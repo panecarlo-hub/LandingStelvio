@@ -856,7 +856,29 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .recensioni-inner { max-width: 1280px; margin: 0 auto; }
-.recensioni-inner .section-title { margin-bottom: 48px; }
+.recensioni-inner .section-title { margin-bottom: 16px; }
+.recensioni-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 18px;
+  margin-bottom: 40px;
+  text-decoration: none;
+  font-size: 14px;
+  color: var(--text);
+  transition: border-color 0.2s, background 0.2s;
+}
+.recensioni-badge:hover { border-color: #b08d6a; background: var(--bg); }
+.badge-stelle { color: #b08d6a; font-size: 15px; letter-spacing: 1px; }
+.badge-score { font-weight: 700; color: var(--heading); }
+.badge-sep { color: var(--text-muted); }
+.badge-count { color: var(--text); }
+.badge-positive { color: #6ab187; font-weight: 600; }
+.badge-source { color: var(--text-muted); font-size: 13px; }
+.recensioni-badge svg { color: var(--text-muted); flex-shrink: 0; }
 .recensioni-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
