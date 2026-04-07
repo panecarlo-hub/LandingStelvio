@@ -606,20 +606,66 @@ body {
 .card-img-wrap {
   position: relative;
   background: var(--bg3);
-  height: 190px;
+  height: 210px;
+  overflow: hidden;
+}
+.card-gallery {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.card-gallery-track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.35s ease;
+}
+.card-gallery-track img {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gallery-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.42);
+  color: #fff;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  transition: background 0.2s;
+  padding: 0;
 }
-.card-img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 16px;
-  transition: transform 0.4s;
+.gallery-btn:hover { background: rgba(0,0,0,0.72); }
+.gallery-prev { left: 8px; }
+.gallery-next { right: 8px; }
+.gallery-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  z-index: 3;
 }
-.car-card:hover .card-img-wrap img { transform: scale(1.04); }
+.gdot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.45);
+  transition: background 0.2s;
+}
+.gdot.active { background: #fff; }
 .card-badge {
   position: absolute;
   top: 12px;

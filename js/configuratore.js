@@ -287,12 +287,21 @@ function renderCards(cars) {
       `Ciao! Sono interessato alla Stelvio ${car.modello} (${car.anno}) - ${car.colore} - ${car.km.toLocaleString('it-IT')} km - Targa: ${car.targa}. Posso avere più informazioni?`
     );
     const waUrl  = `https://wa.me/393284120553?text=${waMsg}`;
-    const imgSrc = car.foto || car.foto_autoscout;
+    const gallery = car.gallery && car.gallery.length ? car.gallery : [car.foto_autoscout];
 
     return `
     <div class="car-card">
       <div class="card-img-wrap">
-        <img src="${imgSrc}" alt="${car.modello}" onerror="this.src='${car.foto_autoscout}'" loading="lazy">
+        <div class="card-gallery" id="gallery-${id}">
+          <div class="card-gallery-track" id="gallery-track-${id}">
+            ${gallery.map((src, gi) => `<img src="${src}" alt="${car.modello}" loading="${gi === 0 ? 'eager' : 'lazy'}">`).join('')}
+          </div>
+          <button class="gallery-btn gallery-prev" onclick="galleryNav(event,${id},-1)">&#8249;</button>
+          <button class="gallery-btn gallery-next" onclick="galleryNav(event,${id},1)">&#8250;</button>
+          <div class="gallery-dots" id="gallery-dots-${id}">
+            ${gallery.map((_, gi) => `<span class="gdot ${gi === 0 ? 'active' : ''}"></span>`).join('')}
+          </div>
+        </div>
         <span class="card-badge">${car.allestimento}</span>
       </div>
       <div class="card-body">
@@ -357,4 +366,20 @@ function renderCards(cars) {
 
   // Inizializza ogni simulatore al caricamento
   cars.forEach(car => aggiornaSimulatore(car.id));
+}
+
+// ── GALLERY ──
+const galleryState = {};
+
+function galleryNav(e, id, dir) {
+  e.preventDefault();
+  e.stopPropagation();
+  const track = document.getElementById('gallery-track-' + id);
+  const dotsEl = document.getElementById('gallery-dots-' + id);
+  if (!track) return;
+  const total = track.querySelectorAll('img').length;
+  if (!galleryState[id]) galleryState[id] = 0;
+  galleryState[id] = (galleryState[id] + dir + total) % total;
+  track.style.transform = `translateX(-${galleryState[id] * 100}%)`;
+  dotsEl.querySelectorAll('.gdot').forEach((d, i) => d.classList.toggle('active', i === galleryState[id]));
 }
