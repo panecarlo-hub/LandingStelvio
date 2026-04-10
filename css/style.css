@@ -710,6 +710,11 @@ body {
   font-size: 22px;
   font-weight: 700;
   color: var(--text);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 .card-price span { font-size: 13px; font-weight: 400; color: var(--muted); }
 .card-wa-btn {
