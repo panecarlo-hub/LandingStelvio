@@ -700,20 +700,20 @@ body {
 .spec-value { font-size: 13px; font-weight: 600; color: var(--text); }
 .card-footer {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
   padding-top: 16px;
   border-top: 1px solid var(--border);
 }
 .card-price {
   font-family: var(--font-c);
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: var(--text);
   display: flex;
   align-items: baseline;
   gap: 6px;
-  flex-wrap: nowrap;
   white-space: nowrap;
 }
 .card-price span { font-size: 13px; font-weight: 400; color: var(--muted); }
@@ -1033,6 +1033,12 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+}
+.card-actions .card-rata-btn,
+.card-actions .card-wa-btn {
+  flex: 1;
+  justify-content: center;
 }
 .card-rata-btn {
   background: none;
